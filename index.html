@@ -57,12 +57,21 @@
   } else {
     const parts = code.split("_");
 
-    const niceTitle =
-      Book your bus for ${cap(parts[0])}, at ${parts[1].toUpperCase()} on ${parts[2]} ${cap(parts[3])} ${parts[4]};
+    // Expected format:
+    // event = artist_venue_day_month_year
+    // e.g. steps_secc_3rd_oct_2025
+    const artist  = parts[0];
+    const venue   = parts[1];
+    const day     = parts[2];
+    const month   = parts[3];
+    const year    = parts[4];
+
+    const niceTitle = Book your bus for ${cap(artist)}, at ${venue.toUpperCase()} on ${day} ${cap(month)} ${year};
 
     document.getElementById("title").innerText = niceTitle;
     document.getElementById("subtitle").innerText = "Select your pickup options below.";
 
+    // Payment link
     const basePayUrl = "https://your-payment-provider.com/pay/" + code;
 
     const zoneSelect = document.getElementById("zoneSelect");
