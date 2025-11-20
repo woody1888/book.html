@@ -26,6 +26,13 @@
       border-radius:6px;
       text-decoration:none;
     }
+    #priceInfo, #totalInfo {
+      margin-top:10px;
+      font-size:0.95rem;
+    }
+    #totalInfo {
+      font-weight:bold;
+    }
   </style>
 </head>
 <body>
@@ -34,96 +41,15 @@
     <h1 id="title">Loading...</h1>
     <p id="subtitle">Please wait...</p>
 
-    <h3>Choose your pickup zone:</h3>
-    <select id="zoneSelect">
-      <option value="">Select zone...</option>
-      <option value="glasgow">Glasgow</option>
-      <option value="lanarkshire">Lanarkshire</option>
-      <option value="edinburgh">Edinburgh</option>
+    <h3>Ticket type:</h3>
+    <select id="ticketType">
+      <option value="">Select ticket type...</option>
+      <option value="return">Return</option>
+      <option value="single">Single</option>
     </select>
 
-    <h3>Choose your pickup point:</h3>
-    <select id="pickupSelect">
-      <option value="">Select pickup point...</option>
+    <h3>Drop-off / pickup location:</h3>
+    <select id="pickupLocation">
+      <option value="">Select location...</option>
       <option value="newarthill_club">Newarthill Club</option>
-      <option value="bellshill">Bellshill</option>
-      <option value="hamilton">Hamilton</option>
-    </select>
-
-    <a id="payBtn" class="button" href="#" target="_blank" style="display:none;">
-      Pay &amp; Book Seat
-    </a>
-  </div>
-
-  <script>
-    (function () {
-      function cap(word) {
-        if (!word) return "";
-        return word.charAt(0).toUpperCase() + word.slice(1);
-      }
-
-      const titleEl = document.getElementById("title");
-      const subtitleEl = document.getElementById("subtitle");
-      const zoneSelect = document.getElementById("zoneSelect");
-      const pickupSelect = document.getElementById("pickupSelect");
-      const payBtn = document.getElementById("payBtn");
-
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("event");
-
-      if (!code) {
-        titleEl.textContent = "Missing event code";
-        subtitleEl.textContent = "Query string: " + window.location.search;
-        return;
-      }
-
-      // Show we actually read the code
-      subtitleEl.textContent = "Event code detected: " + code;
-
-      const parts = code.split("_");
-      if (parts.length < 5) {
-        titleEl.textContent = "Event format not recognised";
-        return;
-      }
-
-      const [artist, venue, day, month, year] = parts;
-
-      const niceTitle =
-        "Book your bus for " +
-        cap(artist) +
-        ", at " +
-        venue.toUpperCase() +
-        " on " +
-        day +
-        " " +
-        cap(month) +
-        " " +
-        year;
-
-      titleEl.textContent = niceTitle;
-
-      const basePayUrl = "https://your-payment-provider.com/pay/" + code;
-
-      function updateButton() {
-        if (zoneSelect.value && pickupSelect.value) {
-          const finalUrl =
-            basePayUrl +
-            "?zone=" +
-            encodeURIComponent(zoneSelect.value) +
-            "&pickup=" +
-            encodeURIComponent(pickupSelect.value);
-
-          payBtn.href = finalUrl;
-          payBtn.style.display = "inline-block";
-        } else {
-          payBtn.style.display = "none";
-        }
-      }
-
-      zoneSelect.addEventListener("change", updateButton);
-      pickupSelect.addEventListener("change", updateButton);
-    })();
-  </script>
-
-</body>
-</html>
+      <option value="bells
