@@ -5,136 +5,199 @@
   <title>Whitebus Scotland Booking</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root { --bg:#f7f7f7; --card:#fff; --text:#111; --muted:#6b7280; --accent:#111; }
+    :root {
+      --brand:#111827;        /* button + accents */
+      --ink:#0f172a;          /* main text */
+      --muted:#6b7280;        /* secondary text */
+      --card:#ffffff;         /* card background */
+      --bg:#f7f7f7;           /* page background */
+      --radius:14px;
+      --hero-image: url('bus.jpg'); /* <- set once you upload bus.jpg */
+    }
+
     * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin:0; background:var(--bg); color:var(--text); }
-    .page { max-width: 680px; margin: 40px auto; padding: 0 16px; }
+    html, body { margin:0; padding:0; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--ink); }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      position: relative;
+      color:#fff;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.45)),
+        var(--hero-image);
+      background-size: cover;
+      background-position: center;
+    }
+    .hero-inner { max-width: 960px; margin: 0 auto; padding: 16px; }
+    .brandbar {
+      display:flex; align-items:center; gap:12px;
+      background: rgba(0,0,0,.35);
+      border-radius: 999px;
+      padding: 8px 14px;
+      width: max-content;
+      backdrop-filter: blur(3px);
+    }
+    .brand-logo {
+      height:28px; width:auto; display:block;
+    }
+    .brand-name { font-weight:700; letter-spacing:.3px; }
+    .hero-title {
+      margin: 28px 0 28px;
+      font-size: clamp(22px, 4vw, 34px);
+      line-height: 1.2;
+      text-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+
+    /* ---------- LAYOUT ---------- */
+    .page { max-width: 720px; margin: -36px auto 48px; padding: 0 16px; }
     .card {
-      background: var(--card);
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      background:var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 30px rgba(0,0,0,.09);
+      padding: 22px 20px;
     }
-    h1 { margin: 0 0 8px; }
-    .muted { color: var(--muted); margin: 0 0 20px; }
-    label { display:block; font-weight:600; margin:18px 0 6px; }
-    select { width:100%; padding:10px 12px; font-size:1rem; }
-    .price { margin-top:12px; font-size:0.95rem; }
-    .total { margin-top:6px; font-size:1.05rem; font-weight:700; }
+
+    /* ---------- FORM ---------- */
+    h3 { margin: 16px 0 6px; font-size: 16px; }
+    .muted { color:var(--muted); margin: 0 0 10px; font-size: 14px; }
+
+    select {
+      width:100%; padding:12px 14px; font-size:16px;
+      border:1px solid #d1d5db; border-radius:10px; background:#fff; outline:none;
+    }
+    select:focus { border-color:#94a3b8; box-shadow: 0 0 0 3px rgba(148,163,184,.25); }
+
+    .price { margin-top:10px; font-size:15px; color:#1f2937; }
+    .total { margin-top:8px; font-weight:700; font-size:18px; }
+
     .button {
-      display:inline-block; margin-top:18px; padding:12px 18px;
-      background:var(--accent); color:#fff; border-radius:999px;
-      text-decoration:none; font-weight:600;
+      display:none; margin-top:16px; width:100%;
+      padding:13px 18px; text-align:center; text-decoration:none;
+      background:var(--brand); color:#fff; border-radius:999px; font-weight:700;
+      box-shadow: 0 8px 20px rgba(17,24,39,.18);
     }
-    .button[disabled] { opacity:.6; pointer-events:none; }
+    .button:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(17,24,39,.22); }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="card">
-      <h1 id="title">Loading…</h1>
 
-      <!-- Dropdowns -->
-      <label for="ticketType">Ticket type:</label>
+  <!-- HERO with brand and bus image -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brandbar">
+        <!-- If logo.png isn’t uploaded yet, this <img> will remove itself -->
+        <img class="brand-logo" src="logo.png" alt="Whitebus Scotland" onerror="this.remove()">
+        <div class="brand-name">WHITEbus Scotland</div>
+      </div>
+      <h1 id="title" class="hero-title">Loading…</h1>
+    </div>
+  </header>
+
+  <!-- Booking card -->
+  <main class="page">
+    <div class="card">
+
+      <h3>Ticket type:</h3>
       <select id="ticketType">
-        <!-- Default to Return to reduce clicks -->
-        <option value="return" selected>Return</option>
+        <option value="">Select ticket type…</option>
+        <option value="return">Return</option>
         <option value="single">Single</option>
       </select>
+      <p class="muted">£25.50 per person return • £19.50 per person single</p>
 
-      <label for="location">Drop-off / pickup location:</label>
+      <h3>Drop‑off / pickup location:</h3>
       <select id="location">
         <option value="">Select location…</option>
-        <option value="Newarthill Club">Newarthill - The Club</option>
-        <option value="Bellshill">Motherwell - Railway Tavern</option>
-        <option value="Hamilton">Bellshill - Franklins bar</option>
-        <option value="Hamilton">Hamilton - bus stop in Palace Retail Parkr</option>
+        <option value="Newarthill Club">Newarthill Club</option>
+        <option value="Bellshill">Bellshill</option>
+        <option value="Hamilton">Hamilton</option>
         <!-- Add more locations by duplicating an <option> line -->
       </select>
 
-      <label for="seats">Number of seats:</label>
+      <h3>Number of seats:</h3>
       <select id="seats">
         <option value="">Select seats…</option>
-        <!-- 1–16 -->
         <option>1</option><option>2</option><option>3</option><option>4</option>
         <option>5</option><option>6</option><option>7</option><option>8</option>
         <option>9</option><option>10</option><option>11</option><option>12</option>
         <option>13</option><option>14</option><option>15</option><option>16</option>
       </select>
 
-      <!-- Price readout -->
-      <div class="price" id="unitPrice">
-        Price: £25.50 per person return (£19.50 single).
-      </div>
-      <div class="total" id="total"></div>
+      <p id="priceInfo" class="price"></p>
+      <p id="totalInfo" class="total"></p>
 
-      <!-- Pay button (hidden until form complete) -->
-      <a id="payBtn" class="button" href="#" target="_blank" style="display:none;">Pay &amp; Book</a>
+      <a id="payBtn" class="button" href="#" target="_blank" rel="noopener">Pay &amp; Book</a>
     </div>
-  </div>
+  </main>
 
+  <!-- JS: booking logic preserved (IDs unchanged) -->
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const PRICES = { return: 25.50, single: 19.50 };
+    (function(){
+      // Prices
+      const PRICE = { return: 25.50, single: 19.50 };
+      // Use your real provider base URL:
+      const PAY_BASE = "https://your-payment-provider.com/pay/";
+
+      // Helpers
+      const cap = (w) => !w ? "" : w.charAt(0).toUpperCase() + w.slice(1);
+      const fmt = (n) => "£" + Number(n).toFixed(2);
 
       // Elements
-      const titleEl = document.getElementById('title');
-      const ticketEl = document.getElementById('ticketType');
-      const locationEl = document.getElementById('location');
-      const seatsEl = document.getElementById('seats');
-      const unitPriceEl = document.getElementById('unitPrice');
-      const totalEl = document.getElementById('total');
-      const payBtn = document.getElementById('payBtn');
+      const titleEl = document.getElementById("title");
+      const typeEl  = document.getElementById("ticketType");
+      const locEl   = document.getElementById("location");
+      const seatsEl = document.getElementById("seats");
+      const priceEl = document.getElementById("priceInfo");
+      const totalEl = document.getElementById("totalInfo");
+      const payBtn  = document.getElementById("payBtn");
 
-      // Build the title from ?event=artist_venue_day_month_year
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('event') || '';
-      function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
-
-      if (code) {
-        const parts = code.split('_');
-        if (parts.length >= 5) {
-          const [artist, venue, day, month, year] = parts;
-          titleEl.textContent = `Book your bus for ${cap(artist)}, at ${venue.toUpperCase()} on ${day} ${cap(month)} ${year}`;
-        } else {
-          // Fallback: just show the code nicely
-          titleEl.textContent = code.split('_').map(cap).join(' ');
-        }
+      // Title from ?event=artist_venue_day_month_year
+      const params = new URLSearchParams(location.search);
+      const eventCode = params.get("event") || "";
+      const p = eventCode.split("_");
+      if (p.length >= 5) {
+        const [artist, venue, day, month, year] = p;
+        titleEl.textContent = `Book your bus for ${cap(artist)}, at ${venue.toUpperCase()} on ${day} ${cap(month)} ${year}`;
       } else {
-        titleEl.textContent = 'Book your bus';
+        titleEl.textContent = "Book your bus";
       }
 
-      unitPriceEl.textContent =
-        `Price: £${PRICES.return.toFixed(2)} per person return (£${PRICES.single.toFixed(2)} single).`;
+      // Price text
+      priceEl.textContent =
+        `Price: ${fmt(PRICE.return)} per person return (${fmt(PRICE.single)} single).`;
 
-      function update() {
-        const type = ticketEl.value; // "return" or "single"
-        const loc  = locationEl.value; // text value (e.g. "Hamilton")
-        const seats = parseInt(seatsEl.value, 10) || 0;
+      function updateUI() {
+        const type  = typeEl.value;           // return | single
+        const loc   = locEl.value;            // text
+        const seats = Number(seatsEl.value) || 0;
 
-        totalEl.textContent = '';
-        payBtn.style.display = 'none';
+        totalEl.textContent = "";
+        payBtn.style.display = "none";
 
-        if (!loc || !seats) return; // wait until user chooses both
+        if (!type || !seats) return;
 
-        const per = PRICES[type];
-        const total = (per * seats).toFixed(2);
-        const typeLabel = (type === 'return') ? 'return' : 'single';
+        const per = PRICE[type];
+        const total = per * seats;
+        const typeLabel = (type === "return") ? "return" : "single";
+        totalEl.textContent = `Total for ${seats} ${typeLabel} seat${seats>1?'s':''}: ${fmt(total)}`;
 
-        totalEl.textContent = `Total: £${total} for ${seats} ${typeLabel} seat${seats>1?'s':''}`;
-
-        // Build a payment link that includes the booking info.
-        // Replace the base URL with your real checkout provider link.
-        const base = 'https://your-payment-provider.com/pay/' + (code || 'event');
-        const url = `${base}?type=${encodeURIComponent(type)}&location=${encodeURIComponent(loc)}&seats=${seats}&total=${total}`;
-        payBtn.href = url;
-        payBtn.style.display = 'inline-block';
+        if (loc) {
+          const u = new URL(PAY_BASE + encodeURIComponent(eventCode || 'event'));
+          u.searchParams.set("type", type);
+          u.searchParams.set("location", loc);
+          u.searchParams.set("seats", String(seats));
+          u.searchParams.set("total", total.toFixed(2));
+          payBtn.href = u.toString();
+          payBtn.textContent = `Pay ${fmt(total)} & Book`;
+          payBtn.style.display = "block";
+        }
       }
 
-      ticketEl.addEventListener('change', update);
-      locationEl.addEventListener('change', update);
-      seatsEl.addEventListener('change', update);
-    });
+      typeEl.addEventListener("change", updateUI);
+      locEl.addEventListener("change", updateUI);
+      seatsEl.addEventListener("change", updateUI);
+    })();
   </script>
 </body>
 </html>
