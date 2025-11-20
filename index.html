@@ -1,99 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Whitebus Scotland Booking</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-  body { font-family: Arial, sans-serif; padding: 20px; background:#f7f7f7; }
-  .card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.15); max-width:600px; margin:auto; }
-  h1 { margin-top:0; }
-  h3 { margin-bottom:5px; }
-  select { width:100%; padding:10px; font-size:1rem; margin-bottom:10px; }
-  .button {
-    display:inline-block; margin-top:20px; padding:12px 20px;
-    background:black; color:white; border-radius:6px; text-decoration:none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>Whitebus Scotland Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background:#f7f7f7; }
+    .card {
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.15);
+      max-width:600px;
+      margin:40px auto;
+    }
+    h1 { margin-top:0; }
+    h3 { margin-bottom:5px; }
+    select { width:100%; padding:10px; font-size:1rem; margin-bottom:10px; }
+    .button {
+      display:inline-block;
+      margin-top:20px;
+      padding:12px 20px;
+      background:black;
+      color:white;
+      border-radius:6px;
+      text-decoration:none;
+    }
+  </style>
 </head>
 <body>
 
-<div class="card">
-  <h1 id="title">Loading…</h1>
-  <p id="subtitle">Please wait…</p>
+  <div class="card">
+    <h1 id="title">Loading...</h1>
+    <p id="subtitle">Please wait...</p>
 
-  <h3>Choose your pickup zone:</h3>
-  <select id="zoneSelect">
-    <option value="">Select zone…</option>
-    <option value="glasgow">Glasgow</option>
-    <option value="lanarkshire">Lanarkshire</option>
-    <option value="edinburgh">Edinburgh</option>
-  </select>
+    <h3>Choose your pickup zone:</h3>
+    <select id="zoneSelect">
+      <option value="">Select zone...</option>
+      <option value="glasgow">Glasgow</option>
+      <option value="lanarkshire">Lanarkshire</option>
+      <option value="edinburgh">Edinburgh</option>
+    </select>
 
-  <h3>Choose your pickup point:</h3>
-  <select id="pickupSelect">
-    <option value="">Select pickup point…</option>
-    <option value="newarthill_club">Newarthill Club</option>
-    <option value="bellshill">Bellshill</option>
-    <option value="hamilton">Hamilton</option>
-  </select>
+    <h3>Choose your pickup point:</h3>
+    <select id="pickupSelect">
+      <option value="">Select pickup point...</option>
+      <option value="newarthill_club">Newarthill Club</option>
+      <option value="bellshill">Bellshill</option>
+      <option value="hamilton">Hamilton</option>
+    </select>
 
-  <a id="payBtn" class="button" href="#" target="_blank" style="display:none;">
-    Pay & Book Seat
-  </a>
-</div>
+    <a id="payBtn" class="button" href="#" target="_blank" style="display:none;">
+      Pay &amp; Book Seat
+    </a>
+  </div>
 
-<script>
-  function cap(word) {
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("event");
-
-  if (!code) {
-    document.getElementById("title").innerText = "Missing event code";
-    document.getElementById("subtitle").innerText = "Add ?event=xxxx in the URL to test.";
-  } else {
-    const parts = code.split("_");
-
-    // Expected format:
-    // event = artist_venue_day_month_year
-    // e.g. steps_secc_3rd_oct_2025
-    const artist  = parts[0];
-    const venue   = parts[1];
-    const day     = parts[2];
-    const month   = parts[3];
-    const year    = parts[4];
-
-    const niceTitle = Book your bus for ${cap(artist)}, at ${venue.toUpperCase()} on ${day} ${cap(month)} ${year};
-
-    document.getElementById("title").innerText = niceTitle;
-    document.getElementById("subtitle").innerText = "Select your pickup options below.";
-
-    // Payment link
-    const basePayUrl = "https://your-payment-provider.com/pay/" + code;
-
-    const zoneSelect = document.getElementById("zoneSelect");
-    const pickupSelect = document.getElementById("pickupSelect");
-    const payBtn = document.getElementById("payBtn");
-
-    function updateButton() {
-      if (zoneSelect.value && pickupSelect.value) {
-        const finalUrl =
-          basePayUrl + "?zone=" + zoneSelect.value + "&pickup=" + pickupSelect.value;
-
-        payBtn.href = finalUrl;
-        payBtn.style.display = "inline-block";
-      } else {
-        payBtn.style.display = "none";
+  <script>
+    (function () {
+      function cap(word) {
+        if (!word) return "";
+        return word.charAt(0).toUpperCase() + word.slice(1);
       }
-    }
 
-    zoneSelect.addEventListener("change", updateButton);
-    pickupSelect.addEventListener("change", updateButton);
-  }
-</script>
+      const titleEl = document.getElementById("title");
+      const subtitleEl = document.getElementById("subtitle");
+      const zoneSelect = document.getElementById("zoneSelect");
+      const pickupSelect = document.getElementById("pickupSelect");
+      const payBtn = document.getElementById("payBtn");
+
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("event");
+
+      if (!code) {
+        titleEl.textContent = "Missing event code";
+        subtitleEl.textContent = "Query string: " + window.location.search;
+        return;
+      }
+
+      // Show we actually read the code
+      subtitleEl.textContent = "Event code detected: " + code;
+
+      const parts = code.split("_");
+      if (parts.length < 5) {
+        titleEl.textContent = "Event format not recognised";
+        return;
+      }
+
+      const [artist, venue, day, month, year] = parts;
+
+      const niceTitle =
+        "Book your bus for " +
+        cap(artist) +
+        ", at " +
+        venue.toUpperCase() +
+        " on " +
+        day +
+        " " +
+        cap(month) +
+        " " +
+        year;
+
+      titleEl.textContent = niceTitle;
+
+      const basePayUrl = "https://your-payment-provider.com/pay/" + code;
+
+      function updateButton() {
+        if (zoneSelect.value && pickupSelect.value) {
+          const finalUrl =
+            basePayUrl +
+            "?zone=" +
+            encodeURIComponent(zoneSelect.value) +
+            "&pickup=" +
+            encodeURIComponent(pickupSelect.value);
+
+          payBtn.href = finalUrl;
+          payBtn.style.display = "inline-block";
+        } else {
+          payBtn.style.display = "none";
+        }
+      }
+
+      zoneSelect.addEventListener("change", updateButton);
+      pickupSelect.addEventListener("change", updateButton);
+    })();
+  </script>
 
 </body>
 </html>
