@@ -5,51 +5,135 @@
   <title>Whitebus Scotland Booking</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background:#f7f7f7; }
+    :root { --bg:#f7f7f7; --card:#fff; --text:#111; --muted:#6b7280; --accent:#111; }
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin:0; background:var(--bg); color:var(--text); }
+    .page { max-width: 680px; margin: 40px auto; padding: 0 16px; }
     .card {
-      background:#fff;
-      padding:20px;
-      border-radius:10px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.15);
-      max-width:600px;
-      margin:40px auto;
+      background: var(--card);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     }
-    h1 { margin-top:0; }
-    h3 { margin-bottom:5px; }
-    select { width:100%; padding:10px; font-size:1rem; margin-bottom:10px; }
+    h1 { margin: 0 0 8px; }
+    .muted { color: var(--muted); margin: 0 0 20px; }
+    label { display:block; font-weight:600; margin:18px 0 6px; }
+    select { width:100%; padding:10px 12px; font-size:1rem; }
+    .price { margin-top:12px; font-size:0.95rem; }
+    .total { margin-top:6px; font-size:1.05rem; font-weight:700; }
     .button {
-      display:inline-block;
-      margin-top:20px;
-      padding:12px 20px;
-      background:black;
-      color:white;
-      border-radius:6px;
-      text-decoration:none;
+      display:inline-block; margin-top:18px; padding:12px 18px;
+      background:var(--accent); color:#fff; border-radius:999px;
+      text-decoration:none; font-weight:600;
     }
-    #priceInfo, #totalInfo {
-      margin-top:10px;
-      font-size:0.95rem;
-    }
-    #totalInfo {
-      font-weight:bold;
-    }
+    .button[disabled] { opacity:.6; pointer-events:none; }
   </style>
 </head>
 <body>
+  <div class="page">
+    <div class="card">
+      <h1 id="title">Loading…</h1>
 
-  <div class="card">
-    <h1 id="title">Loading...</h1>
-    <p id="subtitle">Please wait...</p>
+      <!-- Dropdowns -->
+      <label for="ticketType">Ticket type:</label>
+      <select id="ticketType">
+        <!-- Default to Return to reduce clicks -->
+        <option value="return" selected>Return</option>
+        <option value="single">Single</option>
+      </select>
 
-    <h3>Ticket type:</h3>
-    <select id="ticketType">
-      <option value="">Select ticket type...</option>
-      <option value="return">Return</option>
-      <option value="single">Single</option>
-    </select>
+      <label for="location">Drop-off / pickup location:</label>
+      <select id="location">
+        <option value="">Select location…</option>
+        <option value="Newarthill Club">Newarthill Club</option>
+        <option value="Bellshill">Bellshill</option>
+        <option value="Hamilton">Hamilton</option>
+        <!-- Add more locations by duplicating an <option> line -->
+      </select>
 
-    <h3>Drop-off / pickup location:</h3>
-    <select id="pickupLocation">
-      <option value="">Select location...</option>
-      <option value="newarthill_club">Newarthill Club</option>
-      <option value="bells
+      <label for="seats">Number of seats:</label>
+      <select id="seats">
+        <option value="">Select seats…</option>
+        <!-- 1–16 -->
+        <option>1</option><option>2</option><option>3</option><option>4</option>
+        <option>5</option><option>6</option><option>7</option><option>8</option>
+        <option>9</option><option>10</option><option>11</option><option>12</option>
+        <option>13</option><option>14</option><option>15</option><option>16</option>
+      </select>
+
+      <!-- Price readout -->
+      <div class="price" id="unitPrice">
+        Price: £25.50 per person return (£19.50 single).
+      </div>
+      <div class="total" id="total"></div>
+
+      <!-- Pay button (hidden until form complete) -->
+      <a id="payBtn" class="button" href="#" target="_blank" style="display:none;">Pay &amp; Book</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const PRICES = { return: 25.50, single: 19.50 };
+
+      // Elements
+      const titleEl = document.getElementById('title');
+      const ticketEl = document.getElementById('ticketType');
+      const locationEl = document.getElementById('location');
+      const seatsEl = document.getElementById('seats');
+      const unitPriceEl = document.getElementById('unitPrice');
+      const totalEl = document.getElementById('total');
+      const payBtn = document.getElementById('payBtn');
+
+      // Build the title from ?event=artist_venue_day_month_year
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('event') || '';
+      function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+      if (code) {
+        const parts = code.split('_');
+        if (parts.length >= 5) {
+          const [artist, venue, day, month, year] = parts;
+          titleEl.textContent = `Book your bus for ${cap(artist)}, at ${venue.toUpperCase()} on ${day} ${cap(month)} ${year}`;
+        } else {
+          // Fallback: just show the code nicely
+          titleEl.textContent = code.split('_').map(cap).join(' ');
+        }
+      } else {
+        titleEl.textContent = 'Book your bus';
+      }
+
+      unitPriceEl.textContent =
+        `Price: £${PRICES.return.toFixed(2)} per person return (£${PRICES.single.toFixed(2)} single).`;
+
+      function update() {
+        const type = ticketEl.value; // "return" or "single"
+        const loc  = locationEl.value; // text value (e.g. "Hamilton")
+        const seats = parseInt(seatsEl.value, 10) || 0;
+
+        totalEl.textContent = '';
+        payBtn.style.display = 'none';
+
+        if (!loc || !seats) return; // wait until user chooses both
+
+        const per = PRICES[type];
+        const total = (per * seats).toFixed(2);
+        const typeLabel = (type === 'return') ? 'return' : 'single';
+
+        totalEl.textContent = `Total: £${total} for ${seats} ${typeLabel} seat${seats>1?'s':''}`;
+
+        // Build a payment link that includes the booking info.
+        // Replace the base URL with your real checkout provider link.
+        const base = 'https://your-payment-provider.com/pay/' + (code || 'event');
+        const url = `${base}?type=${encodeURIComponent(type)}&location=${encodeURIComponent(loc)}&seats=${seats}&total=${total}`;
+        payBtn.href = url;
+        payBtn.style.display = 'inline-block';
+      }
+
+      ticketEl.addEventListener('change', update);
+      locationEl.addEventListener('change', update);
+      seatsEl.addEventListener('change', update);
+    });
+  </script>
+</body>
+</html>
