@@ -1,11 +1,12 @@
 {
   "licenses": [
     { "key": "FVS-ROB-001", "status": "blocked" },
-    { "key": "FVS-ROB-002", "status": "blocked" },
+    { "key": "FVS-ROB-002", "status": "active" },
     { "key": "FVS-ROB-003", "status": "blocked" },
     { "key": "FVS-ROB-003", "status": "blocked" }
   ]
 }
+
 
 
 
